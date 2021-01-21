@@ -1,55 +1,68 @@
 #include "stdio.h"
 #include "stdbool.h"
-// Given an array of integers, find two numbers such that they add up to a specific target number.
-// The function twoSum should return indices of the two numbers such that they add up to the target, where
-// index1 must be less than index2. Please note that your returned answers (both index1 and index2) are not
-// zero-based.
-// 2.1 ᪟㏳ 11
-// You may assume that each input would have exactly one solution.
-// Input: numbers={2, 7, 11, 15}, target=9
-// Output: index1=1, index2=2
-typedef struct Num{
-    int value;
-    int index;
-} NumStru;
+#include "stdlib.h"
+// Given an array S of n integers, are there elements a, b, c in S such that a + b + c = 0? Find all unique
+// triplets in the array which gives the sum of zero.
+// Note:
+// • Elements in a triplet (a, b, c) must be in non-descending order. (ie, a ≤ b ≤ c) • The solution set must not contain duplicate triplets.
+// For example, given array S = {-1 0 1 2 -1 -4}.
+// A solution set is:
+// (-1, 0, 1)
+// (-1, -1, 2)
 
-NumStru g_arry[1000] = {0,0};
-int result[2];
+int result[3];
 
-int* SearchTarNum(int *num, int len, int target)
+int Cmp( const void *a, const void *b) 
 {
-    int diff;
-    // for (int i = 0; i < len; i++) {
-    //     diff = target - num[i];
-    //     for (int j = 0; j < len; j++) {
-    //         if (num[j] == diff) {
-    //             result[0] = i;
-    //             result[1] = j;
-    //             return result; 
-    //         }
-    //     }
-    // }
-    for (int i = 0; i< len; i++) {
-        g_arry[num[i]].value = 1;
-        g_arry[num[i]].index = i;
-    }
-    for (int i = 0; i < len; i++) {
-        diff = target - num[i];
-        if (g_arry[diff].value == 1) {
-            result[0] = i;
-            result[1] = g_arry[diff].index;
-            return result;  
+    return *((int *)a) - *((int *)b);
+}
+
+int* SearchTarNum(int *num, int len)
+{
+    const int target = 0;
+    // 先排序
+    qsort(num, len, sizeof(int), Cmp);
+    // 采用左右夹逼法
+    int last = len - 1;
+    for(int i = 0; i < len - 2; i++) {
+        int next = i + 1;
+        if(i> 0 && num[i] == num[i - 1]) {
+            i += 1;
+            continue;
         }
+        while(next < last) {
+            if(num[i] + num[next] + num[last] > target) {
+            last -= 1;
+            while ( (next < last) && (num[last] == num[last + 1])) {
+                last -= 1; // 去重
+            }
+        } else if ( num[i] + num[next] + num[last] < target) {
+            next += 1;
+            while ((next < last) && (num[next] == num[next - 1])) {
+                next += 1; // 去重
+            }
+        } else {
+            result[0] = num[i];
+            result[1] = num[next];
+            result[2] = num[last];
+            next += 1;
+            last -= 1;
+            while ((next < last) &&(num[next] == num[next - 1]) && (num[last] == num[last + 1]))  {
+                next += 1;
+            }
+        }
+        }
+       
     }
-    return NULL;
+    return result;
 }
 
 void test_01(void)
 {
-    int num[6] = {100, 4, 5, 0, 7, 6};
+    int num[6] = {-1,0,1,2,-1,-4};
     int* target;
-    target = SearchTarNum(num, 6, 9);
-    printf("test_01 = %d  %d\n", target[0], target[1]);
+    target = SearchTarNum(num, 6);
+    printf("test_01 = %d %d %d\n", target[0], target[1],target[2]);
 }
 
 
